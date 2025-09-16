@@ -52,7 +52,7 @@ impl LocalDate {
 
     pub fn day_of_year(&self) -> u16 { self.0.ordinal() }
 
-    pub fn year(&self) -> crate::Year { crate::Year::of(self.0.year()) }
+    pub fn year(&self) -> i32 { self.0.year() }
 
     pub fn length_of_month(&self) -> u8 {
         let month = crate::Month::from(self.0.month());
@@ -156,6 +156,83 @@ impl LocalDate {
     pub fn with_year(self, year: i32) -> Self {
         let d = time::Date::from_calendar_date(year, self.0.month(), self.0.day()).expect("invalid date");
         LocalDate(d)
+    }
+
+    pub fn first_day_of_month(self) -> Self {
+        self.with_day_of_month(1)
+    }
+
+    pub fn last_day_of_month(self) -> Self {
+        let len = self.length_of_month();
+        self.with_day_of_month(len)
+    }
+
+    // New: last day of a specific month in a specific year
+    pub fn last_day_of_month_year(year: i32, month: i32) -> Self {
+        let m = crate::Month::of(month);
+        let leap = crate::Year::of(year).is_leap();
+        let last = m.length(leap);
+        let tm: time::Month = m.into();
+        let d = time::Date::from_calendar_date(year, tm, last)
+            .expect("invalid date for last_day_of_month_year");
+        LocalDate(d)
+    }
+
+    pub fn first_day_of_year(self) -> Self {
+        self.with_day_of_year(1)
+    }
+
+    pub fn last_day_of_year(self) -> Self {
+        let len = self.length_of_year() as u16;
+        self.with_day_of_year(len)
+    }
+
+    pub fn first_day_of_next_month(self) -> Self {
+        self.plus_months(1).first_day_of_month()
+    }
+
+    pub fn first_day_of_next_year(self) -> Self {
+        self.plus_years(1).with_day_of_year(1)
+    }
+
+    pub fn first_in_month(self, dow: crate::DayOfWeek) -> Self {
+        let first = self.first_day_of_month();
+        let current = first.day_of_week();
+        let delta = (dow.value() - current.value() + 7) % 7; // 0..6 days forward
+        first.plus_days(delta as i64)
+    }
+
+    pub fn last_in_month(self, dow: crate::DayOfWeek) -> Self {
+        let last = self.last_day_of_month();
+        let current = last.day_of_week();
+        let delta = (current.value() - dow.value() + 7) % 7; // 0..6 days backward
+        last.minus_days(delta as i64)
+    }
+
+    pub fn next(self, dow: crate::DayOfWeek) -> Self {
+        let cur = self.day_of_week();
+        let mut delta = (dow.value() - cur.value() + 7) % 7;
+        if delta == 0 { delta = 7; }
+        self.plus_days(delta as i64)
+    }
+
+    pub fn next_or_same(self, dow: crate::DayOfWeek) -> Self {
+        let cur = self.day_of_week();
+        let delta = (dow.value() - cur.value() + 7) % 7;
+        self.plus_days(delta as i64)
+    }
+
+    pub fn previous(self, dow: crate::DayOfWeek) -> Self {
+        let cur = self.day_of_week();
+        let mut delta = (cur.value() - dow.value() + 7) % 7;
+        if delta == 0 { delta = 7; }
+        self.minus_days(delta as i64)
+    }
+
+    pub fn previous_or_same(self, dow: crate::DayOfWeek) -> Self {
+        let cur = self.day_of_week();
+        let delta = (cur.value() - dow.value() + 7) % 7;
+        self.minus_days(delta as i64)
     }
 
     pub fn is_before(&self, other: LocalDate) -> bool { self.0 < other.0 }

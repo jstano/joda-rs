@@ -24,7 +24,7 @@ fn queries_and_lengths() {
     assert_eq!(d.day_of_month(), 29);
     assert_eq!(d.day_of_year(), 60);
     assert_eq!(d.length_of_month(), 29);
-    assert_eq!(d.year().get_value(), 2020);
+    assert_eq!(d.year(), 2020);
 
     assert_eq!(d.month(), Month::February);
     assert_eq!(d.month_value(), 2);
@@ -79,4 +79,67 @@ fn comparisons() {
 
     assert!(a.is_on_or_before(a2));
     assert!(a.is_on_or_after(a2));
+}
+
+
+#[test]
+fn first_and_last_day_of_month_helpers() {
+    // Regular month
+    let d = LocalDate::of(2021, 3, 14);
+    assert_eq!(d.first_day_of_month(), LocalDate::of(2021, 3, 1));
+    assert_eq!(d.last_day_of_month(), LocalDate::of(2021, 3, 31));
+
+    // Leap February
+    let feb_leap = LocalDate::of(2020, 2, 10);
+    assert_eq!(feb_leap.first_day_of_month(), LocalDate::of(2020, 2, 1));
+    assert_eq!(feb_leap.last_day_of_month(), LocalDate::of(2020, 2, 29));
+
+    // Non-leap February
+    let feb_non = LocalDate::of(2021, 2, 10);
+    assert_eq!(feb_non.first_day_of_month(), LocalDate::of(2021, 2, 1));
+    assert_eq!(feb_non.last_day_of_month(), LocalDate::of(2021, 2, 28));
+}
+
+
+#[test]
+fn last_day_of_month_year_helper() {
+    // Leap year February
+    assert_eq!(LocalDate::last_day_of_month_year(2020, 2), LocalDate::of(2020, 2, 29));
+    // Non-leap February
+    assert_eq!(LocalDate::last_day_of_month_year(2021, 2), LocalDate::of(2021, 2, 28));
+    // April 30 days
+    assert_eq!(LocalDate::last_day_of_month_year(2021, 4), LocalDate::of(2021, 4, 30));
+    // December 31 days
+    assert_eq!(LocalDate::last_day_of_month_year(2023, 12), LocalDate::of(2023, 12, 31));
+}
+
+#[test]
+fn year_and_weekday_helpers() {
+    use joda_rs::DayOfWeek::*;
+    // 2021 year checks
+    let d = LocalDate::of(2021, 3, 14); // Sunday
+    assert_eq!(d.first_day_of_year(), LocalDate::of(2021, 1, 1));
+    assert_eq!(d.last_day_of_year(), LocalDate::of(2021, 12, 31));
+    assert_eq!(d.first_day_of_next_month(), LocalDate::of(2021, 4, 1));
+    assert_eq!(d.first_day_of_next_year(), LocalDate::of(2022, 1, 1));
+
+    // first/last in month
+    let jan2021 = LocalDate::of(2021, 1, 15);
+    assert_eq!(jan2021.first_in_month(Monday), LocalDate::of(2021, 1, 4));
+    assert_eq!(jan2021.first_in_month(Friday), LocalDate::of(2021, 1, 1));
+    assert_eq!(jan2021.last_in_month(Sunday), LocalDate::of(2021, 1, 31));
+    assert_eq!(jan2021.last_in_month(Tuesday), LocalDate::of(2021, 1, 26));
+
+    // next/previous family from a Sunday (2021-03-14)
+    assert_eq!(d.next(Monday), LocalDate::of(2021, 3, 15));
+    assert_eq!(d.next_or_same(Sunday), d);
+    assert_eq!(d.next_or_same(Monday), LocalDate::of(2021, 3, 15));
+    assert_eq!(d.previous(Saturday), LocalDate::of(2021, 3, 13));
+    assert_eq!(d.previous_or_same(Sunday), d);
+    assert_eq!(d.previous_or_same(Friday), LocalDate::of(2021, 3, 12));
+
+    // Leap-year month check (Feb 2020)
+    let feb2020 = LocalDate::of(2020, 2, 10);
+    assert_eq!(feb2020.first_in_month(Saturday), LocalDate::of(2020, 2, 1));
+    assert_eq!(feb2020.last_in_month(Saturday), LocalDate::of(2020, 2, 29));
 }

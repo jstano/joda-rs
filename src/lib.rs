@@ -13,10 +13,15 @@ pub mod period;
 pub mod day_of_week;
 pub mod month;
 pub mod year;
+pub mod year_month;
+pub mod month_day;
+pub mod clock;
 
 pub use day_of_week::DayOfWeek;
 pub use month::Month;
 pub use year::Year;
+pub use year_month::YearMonth;
+pub use month_day::MonthDay;
 
 pub use duration::Duration;
 pub use instant::Instant;
@@ -28,6 +33,7 @@ pub use period::Period;
 pub use zone_id::ZoneId;
 pub use zone_offset::ZoneOffset;
 pub use zoned_date_time::ZonedDateTime;
+pub use clock::{Clock, FixedClock, SystemClock};
 
 #[cfg(test)]
 mod tests {
@@ -35,8 +41,6 @@ mod tests {
 
     #[test]
     fn wrappers_smoke_test() {
-        let d = LocalDate::of(2024, 1, 1);
-        let t = LocalTime::of(12, 0, 0);
         let ldt = LocalDateTime::of(2024, 1, 1, 12, 0, 0);
         let off = ZoneOffset::of_hours(0);
         let odt = OffsetDateTime::of(ldt, off);
@@ -105,8 +109,8 @@ mod tests {
         let y = Year::of(2024);
         assert!(y.is_leap());
         assert_eq!(y.length(), 366);
-        assert_eq!(y.plus(1).get_value(), 2025);
-        assert_eq!(y.minus(25).get_value(), 1999);
+        assert_eq!(y.plus(1).value(), 2025);
+        assert_eq!(y.minus(25).value(), 1999);
         let d_jan1 = y.at_day(1);
         assert_eq!(d_jan1, LocalDate::of(2024, 1, 1));
         let d_feb29 = y.at_month_day(Month::February, 29);
@@ -117,7 +121,7 @@ mod tests {
         assert_eq!(qd.day_of_month(), 29);
         assert_eq!(qd.day_of_year(), 60); // 2020 is leap
         assert_eq!(qd.length_of_month(), 29);
-        assert_eq!(qd.year().get_value(), 2020);
+        assert_eq!(qd.year(), 2020);
         let dow = qd.day_of_week();
         // 2020-02-29 was Saturday
         assert_eq!(dow, DayOfWeek::Saturday);

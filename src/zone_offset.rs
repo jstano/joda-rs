@@ -6,6 +6,12 @@ impl From<ZoneOffset> for time::UtcOffset { fn from(w: ZoneOffset) -> Self { w.0
 impl ZoneOffset {
     pub fn inner(&self) -> &time::UtcOffset { &self.0 }
 
+    // Total seconds of the offset (e.g., +05:30 -> 19800, -07:00 -> -25200)
+    pub fn total_seconds(&self) -> i32 {
+        let (h, m, s) = self.0.as_hms();
+        (h as i32) * 3600 + (m as i32) * 60 + (s as i32)
+    }
+
     // java.time.ZoneOffset.ofHours
     pub fn of_hours(hours: i8) -> Self {
         ZoneOffset(time::UtcOffset::from_hms(hours, 0, 0).expect("invalid offset hours"))

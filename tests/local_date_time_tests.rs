@@ -64,3 +64,35 @@ fn comparisons_and_conversions() {
     // Month enum can be used by callers along with date part in other APIs; basic conversion check
     let _m = Month::February; // smoke
 }
+
+
+#[test]
+fn last_day_of_month_year_preserves_time() {
+    let ldt = LocalDateTime::of(2021, 1, 10, 8, 30, 0);
+    // Non-leap Feb 2021
+    let feb_last = ldt.last_day_of_month_year(2021, 2);
+    assert_eq!(feb_last, LocalDateTime::of(2021, 2, 28, 8, 30, 0));
+    // Leap Feb 2020
+    let feb_last_leap = ldt.last_day_of_month_year(2020, 2);
+    assert_eq!(feb_last_leap, LocalDateTime::of(2020, 2, 29, 8, 30, 0));
+}
+
+#[test]
+fn date_part_helpers_preserve_time() {
+    use joda_rs::DayOfWeek::*;
+    let ldt = LocalDateTime::of(2021, 3, 14, 8, 30, 0); // Sunday 08:30
+    assert_eq!(ldt.first_day_of_month(), LocalDateTime::of(2021, 3, 1, 8, 30, 0));
+    assert_eq!(ldt.last_day_of_month(), LocalDateTime::of(2021, 3, 31, 8, 30, 0));
+    assert_eq!(ldt.first_day_of_year(), LocalDateTime::of(2021, 1, 1, 8, 30, 0));
+    assert_eq!(ldt.last_day_of_year(), LocalDateTime::of(2021, 12, 31, 8, 30, 0));
+    assert_eq!(ldt.first_day_of_next_month(), LocalDateTime::of(2021, 4, 1, 8, 30, 0));
+    assert_eq!(ldt.first_day_of_next_year(), LocalDateTime::of(2022, 1, 1, 8, 30, 0));
+
+    assert_eq!(ldt.first_in_month(Monday), LocalDateTime::of(2021, 3, 1, 8, 30, 0));
+    assert_eq!(ldt.last_in_month(Tuesday), LocalDateTime::of(2021, 3, 30, 8, 30, 0));
+
+    assert_eq!(ldt.next(Monday), LocalDateTime::of(2021, 3, 15, 8, 30, 0));
+    assert_eq!(ldt.next_or_same(Sunday), ldt);
+    assert_eq!(ldt.previous(Saturday), LocalDateTime::of(2021, 3, 13, 8, 30, 0));
+    assert_eq!(ldt.previous_or_same(Sunday), ldt);
+}

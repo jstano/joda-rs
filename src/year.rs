@@ -3,7 +3,7 @@ pub struct Year(pub i32);
 
 impl Year {
     pub fn of(value: i32) -> Self { Year(value) }
-    pub fn get_value(self) -> i32 { self.0 }
+    pub fn value(self) -> i32 { self.0 }
 
     pub fn now() -> Self {
         // Use UTC clock; java.time uses system default zone, but we avoid tz here.
@@ -25,7 +25,17 @@ impl Year {
     }
     pub fn minus(self, years: i64) -> Self { self.plus(-years) }
 
-    // java.time.Year.atMonth(int) returns YearMonth; we don't have YearMonth.
+    // Comparisons
+    pub fn is_before(&self, other: Year) -> bool { self.0 < other.0 }
+    pub fn is_after(&self, other: Year) -> bool { self.0 > other.0 }
+    pub fn is_on_or_before(&self, other: Year) -> bool { self.0 <= other.0 }
+    pub fn is_on_or_after(&self, other: Year) -> bool { self.0 >= other.0 }
+
+    // Year.atMonth(Month) -> YearMonth
+    pub fn at_month(self, month: crate::Month) -> crate::YearMonth {
+        crate::YearMonth::of_year_month(self.0, month)
+    }
+
     // Provide conveniences to build LocalDate like Year.at_month_day(Month, int) and Year.at_day(int).
     pub fn at_month_day(self, month: crate::Month, day: u8) -> crate::LocalDate {
         let m: time::Month = month.into();

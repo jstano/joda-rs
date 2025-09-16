@@ -6,6 +6,19 @@ impl From<LocalDateTime> for time::PrimitiveDateTime { fn from(w: LocalDateTime)
 impl LocalDateTime {
     pub fn inner(&self) -> &time::PrimitiveDateTime { &self.0 }
 
+    // --- Queries ---
+    pub fn year(&self) -> i32 { self.0.date().year() }
+    pub fn month(&self) -> crate::Month { self.0.date().month().into() }
+    pub fn month_value(&self) -> i32 { self.month().value() }
+    pub fn day(&self) -> u8 { self.0.date().day() }
+    pub fn hour(&self) -> u8 { self.0.time().hour() }
+    pub fn minute(&self) -> u8 { self.0.time().minute() }
+    pub fn second(&self) -> u8 { self.0.time().second() }
+    pub fn nano(&self) -> u32 { self.0.time().nanosecond() }
+
+    pub fn day_of_year(&self) -> u16 { self.0.date().ordinal() }
+    pub fn day_of_week(&self) -> crate::DayOfWeek { crate::DayOfWeek::from(self.0.date().weekday()) }
+
     // java.time.LocalDateTime.now()
     pub fn now() -> Self {
         let odt = time::OffsetDateTime::now_utc();
@@ -117,4 +130,93 @@ impl LocalDateTime {
     // --- conversions ---
     pub fn to_local_date(self) -> crate::LocalDate { self.0.date().into() }
     pub fn to_local_time(self) -> crate::LocalTime { self.0.time().into() }
+
+    // --- date-based helpers mirroring LocalDate ones, preserving time part ---
+    pub fn first_day_of_month(self) -> Self {
+        let date: crate::LocalDate = self.0.date().into();
+        let time: crate::LocalTime = self.0.time().into();
+        let nd = date.first_day_of_month();
+        Self::of_date_time(nd, time)
+    }
+    pub fn last_day_of_month(self) -> Self {
+        let date: crate::LocalDate = self.0.date().into();
+        let time: crate::LocalTime = self.0.time().into();
+        let nd = date.last_day_of_month();
+        Self::of_date_time(nd, time)
+    }
+    
+    // New: last day of a specific month/year, preserving time component
+    pub fn last_day_of_month_year(self, year: i32, month: i32) -> Self {
+        let time: crate::LocalTime = self.0.time().into();
+        let nd = crate::LocalDate::last_day_of_month_year(year, month);
+        Self::of_date_time(nd, time)
+    }
+    pub fn first_day_of_next_month(self) -> Self {
+        let date: crate::LocalDate = self.0.date().into();
+        let time: crate::LocalTime = self.0.time().into();
+        let nd = date.first_day_of_next_month();
+        Self::of_date_time(nd, time)
+    }
+    pub fn first_day_of_year(self) -> Self {
+        let date: crate::LocalDate = self.0.date().into();
+        let time: crate::LocalTime = self.0.time().into();
+        let nd = date.first_day_of_year();
+        Self::of_date_time(nd, time)
+    }
+    pub fn first_day_of_next_year(self) -> Self {
+        let date: crate::LocalDate = self.0.date().into();
+        let time: crate::LocalTime = self.0.time().into();
+        let nd = date.first_day_of_next_year();
+        Self::of_date_time(nd, time)
+    }
+    pub fn last_day_of_year(self) -> Self {
+        let date: crate::LocalDate = self.0.date().into();
+        let time: crate::LocalTime = self.0.time().into();
+        let nd = date.last_day_of_year();
+        Self::of_date_time(nd, time)
+    }
+    pub fn first_in_month(self, dow: crate::DayOfWeek) -> Self {
+        let date: crate::LocalDate = self.0.date().into();
+        let time: crate::LocalTime = self.0.time().into();
+        let nd = date.first_in_month(dow);
+        Self::of_date_time(nd, time)
+    }
+    pub fn last_in_month(self, dow: crate::DayOfWeek) -> Self {
+        let date: crate::LocalDate = self.0.date().into();
+        let time: crate::LocalTime = self.0.time().into();
+        let nd = date.last_in_month(dow);
+        Self::of_date_time(nd, time)
+    }
+    pub fn next(self, dow: crate::DayOfWeek) -> Self {
+        let date: crate::LocalDate = self.0.date().into();
+        let time: crate::LocalTime = self.0.time().into();
+        let nd = date.next(dow);
+        Self::of_date_time(nd, time)
+    }
+    pub fn next_or_same(self, dow: crate::DayOfWeek) -> Self {
+        let date: crate::LocalDate = self.0.date().into();
+        let time: crate::LocalTime = self.0.time().into();
+        let nd = date.next_or_same(dow);
+        Self::of_date_time(nd, time)
+    }
+    pub fn previous(self, dow: crate::DayOfWeek) -> Self {
+        let date: crate::LocalDate = self.0.date().into();
+        let time: crate::LocalTime = self.0.time().into();
+        let nd = date.previous(dow);
+        Self::of_date_time(nd, time)
+    }
+    pub fn previous_or_same(self, dow: crate::DayOfWeek) -> Self {
+        let date: crate::LocalDate = self.0.date().into();
+        let time: crate::LocalTime = self.0.time().into();
+        let nd = date.previous_or_same(dow);
+        Self::of_date_time(nd, time)
+    }
+}
+
+impl core::ops::Sub for LocalDateTime {
+    type Output = crate::Duration;
+    fn sub(self, rhs: Self) -> Self::Output {
+        let d: time::Duration = self.0 - rhs.0;
+        crate::Duration::from(d)
+    }
 }

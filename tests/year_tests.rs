@@ -5,8 +5,8 @@ fn basic_queries_and_display() {
     let y = Year::of(2024);
     assert!(y.is_leap());
     assert_eq!(y.length(), 366);
-    assert_eq!(y.plus(1).get_value(), 2025);
-    assert_eq!(y.minus(25).get_value(), 1999);
+    assert_eq!(y.plus(1).value(), 2025);
+    assert_eq!(y.minus(25).value(), 1999);
     assert_eq!(format!("{}", y), "2024");
 }
 
