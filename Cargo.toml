@@ -1,0 +1,16 @@
+[package]
+name = "joda_rs"
+version = "0.1.0"
+edition = "2024"
+authors = ["Jeff Stano <jeff@stano.com>"]
+description = "A joda like wrapper around the time crate"
+license = "Apache-2.0"
+repository = "https://github.com/jstano/joda-rs"
+readme = "README.md"
+keywords = ["joda"]
+
+[dependencies]
+rstest = "0.26.1"
+bigdecimal = "0.4.8"
+num-traits = "0.2.19"
+time = { version = "0.3.43", features = ["parsing"] }
