@@ -11,6 +11,12 @@ impl LocalTime {
         LocalTime(t)
     }
 
+    pub fn now_with_clock(clock: crate::Clock) -> Self {
+        // Use the provided Clock; zone semantics are UTC-only for now via Instant::at_zone
+        let zdt = clock.instant().at_zone(clock.zone());
+        zdt.to_local_time()
+    }
+
     pub fn of(hour: u8, minute: u8, second: u8) -> Self {
         let t = time::Time::from_hms(hour, minute, second).expect("invalid time");
         LocalTime(t)

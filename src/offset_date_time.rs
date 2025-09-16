@@ -9,6 +9,13 @@ impl OffsetDateTime {
     // java.time.OffsetDateTime.now()
     pub fn now_utc() -> Self { OffsetDateTime(time::OffsetDateTime::now_utc()) }
 
+    pub fn now_with_clock(clock: crate::Clock) -> Self {
+        // Use the provided Clock; we only support UTC offset at the moment
+        clock
+            .instant()
+            .at_offset(crate::ZoneOffset::of_hours(0))
+    }
+
     // java.time.OffsetDateTime.of(LocalDateTime, ZoneOffset)
     pub fn of(ldt: crate::LocalDateTime, offset: crate::ZoneOffset) -> Self {
         let pdt: time::PrimitiveDateTime = ldt.into();

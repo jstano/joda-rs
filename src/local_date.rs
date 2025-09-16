@@ -16,6 +16,12 @@ impl LocalDate {
         LocalDate(d)
     }
 
+    pub fn now_with_clock(clock: crate::Clock) -> Self {
+        // Use the provided Clock; zone semantics are UTC-only for now
+        let zdt = clock.instant().at_zone(clock.zone());
+        zdt.to_local_date()
+    }
+
     pub fn now_zone_id(_zone: crate::ZoneId) -> Self {
         // Placeholder: we currently don't have tz database support; treat all zones as UTC.
         let d = time::OffsetDateTime::now_utc().date();

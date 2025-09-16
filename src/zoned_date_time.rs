@@ -10,6 +10,11 @@ impl ZonedDateTime {
     // java.time.ZonedDateTime.now() - UTC only placeholder
     pub fn now_utc() -> Self { ZonedDateTime(time::OffsetDateTime::now_utc()) }
 
+    pub fn now_with_clock(clock: crate::Clock) -> Self {
+        // Use provided clock; zone handling is placeholder via Instant::at_zone
+        clock.instant().at_zone(clock.zone())
+    }
+
     // java.time.ZonedDateTime.of(LocalDateTime, ZoneId)
     pub fn of(ldt: crate::LocalDateTime, zone: crate::ZoneId) -> Self {
         // Only UTC supported explicitly; other ids behave as UTC for now

@@ -25,6 +25,12 @@ impl LocalDateTime {
         LocalDateTime(time::PrimitiveDateTime::new(odt.date(), odt.time()))
     }
 
+    pub fn now_with_clock(clock: crate::Clock) -> Self {
+        // Build from the provided Clock; leverage Instant::at_zone
+        let zdt = clock.instant().at_zone(clock.zone());
+        zdt.to_local_date_time()
+    }
+
     // java.time.LocalDateTime.of(date, time)
     pub fn of_date_time(date: crate::LocalDate, time_: crate::LocalTime) -> Self {
         LocalDateTime(time::PrimitiveDateTime::new(date.into(), time_.into()))
