@@ -143,3 +143,15 @@ fn year_and_weekday_helpers() {
     assert_eq!(feb2020.first_in_month(Saturday), LocalDate::of(2020, 2, 1));
     assert_eq!(feb2020.last_in_month(Saturday), LocalDate::of(2020, 2, 29));
 }
+
+
+#[test]
+fn plus_months_handles_january_31_days() {
+    // Moving into January should preserve day 31 because January has 31 days.
+    let d = LocalDate::of(2021, 12, 31).plus_months(1);
+    assert_eq!(d, LocalDate::of(2022, 1, 31));
+
+    // Also test via a negative move: March 31 back by 2 months -> January 31
+    let d2 = LocalDate::of(2020, 3, 31).minus_months(2);
+    assert_eq!(d2, LocalDate::of(2020, 1, 31));
+}
