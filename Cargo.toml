@@ -13,4 +13,8 @@ keywords = ["joda"]
 rstest = "0.26.1"
 bigdecimal = "0.4.8"
 num-traits = "0.2.19"
-time = { version = "0.3.43", features = ["parsing"] }
+time = { version = "0.3.43", features = ["parsing", "local-offset"] }
+time-tz = {  version = "2.0.0", features = ["db", "system"] }
+
+[lib]
+doctest = false

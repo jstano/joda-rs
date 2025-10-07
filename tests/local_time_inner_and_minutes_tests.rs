@@ -1,19 +1,6 @@
 use joda_rs::LocalTime;
 
 #[test]
-fn inner_exposes_time_time_and_into_roundtrip() {
-    let lt = LocalTime::of(12, 34, 56);
-    let expected = time::Time::from_hms(12, 34, 56).unwrap();
-
-    // inner() should reference the same underlying time::Time
-    assert_eq!(*lt.inner(), expected);
-
-    // Also verify Into<time::Time> for LocalTime yields the same value
-    let back: time::Time = lt.into();
-    assert_eq!(back, expected);
-}
-
-#[test]
 fn minus_hours_delegates_to_plus_hours_negated() {
     let base = LocalTime::of(10, 0, 0);
     // For a positive input: minus_hours(h) == plus_hours(-h)

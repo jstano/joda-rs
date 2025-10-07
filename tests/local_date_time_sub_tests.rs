@@ -1,4 +1,4 @@
-use joda_rs::{LocalDateTime, Duration};
+use joda_rs::{Duration, LocalDateTime};
 
 #[test]
 fn subtraction_returns_duration() {
@@ -8,11 +8,11 @@ fn subtraction_returns_duration() {
     assert_eq!(d, Duration::of_seconds(1));
 
     let d2 = b - a;
-    assert!(d2.inner().is_negative());
+    assert!(d2.is_negative());
     // Compare absolute value by flipping sign via underlying time::Duration
-    let abs_ns = d2.inner().abs();
+    let abs_ns = d2.abs();
     assert_eq!(joda_rs::Duration::from(abs_ns), Duration::of_seconds(1));
 
     let z = a - a;
-    assert!(z.inner().is_zero());
+    assert!(z.is_zero());
 }

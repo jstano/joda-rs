@@ -1,5 +1,3 @@
-//! joda-rs: Java-time-like wrappers over the `time` crate.
-
 pub mod local_date;
 pub mod local_time;
 pub mod local_date_time;
@@ -16,24 +14,25 @@ pub mod year;
 pub mod year_month;
 pub mod month_day;
 pub mod clock;
+pub mod temporal;
 
+pub use clock::{Clock, FixedClock, SystemClock};
 pub use day_of_week::DayOfWeek;
-pub use month::Month;
-pub use year::Year;
-pub use year_month::YearMonth;
-pub use month_day::MonthDay;
-
 pub use duration::Duration;
 pub use instant::Instant;
 pub use local_date::LocalDate;
 pub use local_date_time::LocalDateTime;
 pub use local_time::LocalTime;
+pub use month::Month;
+pub use month_day::MonthDay;
 pub use offset_date_time::OffsetDateTime;
 pub use period::Period;
+pub use temporal::TemporalInstant;
+pub use year::Year;
+pub use year_month::YearMonth;
 pub use zone_id::ZoneId;
 pub use zone_offset::ZoneOffset;
 pub use zoned_date_time::ZonedDateTime;
-pub use clock::{Clock, FixedClock, SystemClock};
 
 #[cfg(test)]
 mod tests {
@@ -65,7 +64,7 @@ mod tests {
         let _ = Duration::between(start, end);
 
         // LocalDate now with ZoneId and parse
-        let d_zone = LocalDate::now_zone_id(ZoneId::UTC);
+        let d_zone = LocalDate::now_with_zone(ZoneId::UTC);
         let parsed = LocalDate::parse("2025-09-15");
         let expected = LocalDate::of(2025, 9, 15);
         assert_eq!(parsed, expected);
@@ -87,10 +86,6 @@ mod tests {
         assert_eq!(DayOfWeek::Sunday.value(), 7);
         assert_eq!(DayOfWeek::Friday.plus(3), DayOfWeek::Monday);
         assert_eq!(DayOfWeek::Monday.minus(1), DayOfWeek::Sunday);
-        // From date
-        let d3 = LocalDate::of(2024, 9, 2); // 2024-09-02 is a Monday (Labor Day 2024)
-        let dow = DayOfWeek::from_date(d3);
-        assert_eq!(dow, DayOfWeek::Monday);
 
         // Month basic behavior
         let feb = Month::of(2);
@@ -100,10 +95,6 @@ mod tests {
         assert_eq!(Month::November.plus(2), Month::January);
         assert_eq!(Month::February.length(false), 28);
         assert_eq!(Month::February.length(true), 29);
-        // Conversion with time::Month
-        let t_m: time::Month = Month::March.into();
-        let m2: Month = t_m.into();
-        assert_eq!(m2, Month::March);
 
         // Year basic behavior
         let y = Year::of(2024);

@@ -1,44 +1,60 @@
+use crate::{Clock, Duration, Instant, LocalDate, LocalDateTime, ZoneId};
+use core::ops::Sub;
+use std::ops::Add;
+use time::UtcOffset;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct LocalTime(pub time::Time);
+pub struct LocalTime(time::Time);
 
-impl From<time::Time> for LocalTime { fn from(t: time::Time) -> Self { LocalTime(t) } }
-impl From<LocalTime> for time::Time { fn from(w: LocalTime) -> Self { w.0 } }
 impl LocalTime {
-    pub fn inner(&self) -> &time::Time { &self.0 }
-
     pub fn now() -> Self {
-        let t = time::OffsetDateTime::now_utc().time();
-        LocalTime(t)
+        Self(time::OffsetDateTime::now_utc().to_offset(UtcOffset::current_local_offset().unwrap()).time())
     }
 
-    pub fn now_with_clock(clock: crate::Clock) -> Self {
-        // Use the provided Clock; zone semantics are UTC-only for now via Instant::at_zone
-        let zdt = clock.instant().at_zone(clock.zone());
-        zdt.to_local_time()
+    pub fn now_with_clock(clock: &Clock) -> Self {
+        clock.instant().at_zone(clock.zone()).to_local_time()
     }
 
-    pub fn of(hour: u8, minute: u8, second: u8) -> Self {
-        let t = time::Time::from_hms(hour, minute, second).expect("invalid time");
-        LocalTime(t)
+    pub fn now_with_zone(zone: ZoneId) -> Self {
+        Instant::now().at_zone(zone).to_local_time()
     }
 
-    pub fn hour(&self) -> u8 { self.0.hour() }
-    pub fn minute(&self) -> u8 { self.0.minute() }
-    pub fn seconds(&self) -> u8 { self.0.second() }
-
-    fn total_nanos_of_day(&self) -> i128 {
-        // h,m,s,n -> total nanoseconds
-        let h = self.0.hour() as i128;
-        let m = self.0.minute() as i128;
-        let s = self.0.second() as i128;
-        let n = self.0.nanosecond() as i128;
-        (((h * 60 + m) * 60 + s) * 1_000_000_000) + n
+    pub fn new(hour: i32, minute: i32, second: i32) -> Self {
+        Self(time::Time::from_hms(hour as u8, minute as u8, second as u8).expect("invalid time"))
     }
-    fn from_total_nanos_of_day(total: i128) -> Self {
+
+    pub fn of(hour: i32, minute: i32, second: i32) -> Self {
+        Self::new(hour, minute, second)
+    }
+
+    pub fn of_hour_minute(hour: i32, minute: i32) -> Self {
+        Self::new(hour, minute, 0)
+    }
+
+    pub fn of_hms_nano(hour: i32, minute: i32, second: i32, nanosecond: i32) -> Self {
+        let nano = u32::try_from(nanosecond).expect("x must be non-negative");
+        Self(
+            time::Time::from_hms_nano(hour as u8, minute as u8, second as u8, nano)
+                .expect("invalid time"),
+        )
+    }
+
+    pub fn of_second_of_day(second: i32) -> Self {
+        let total_nanos = i128::from(second) * 1_000_000_000_i128;
+        Self::of_total_nanos_of_day(total_nanos)
+    }
+
+    pub fn of_nanosecond_of_day(nanosecond: i64) -> Self {
+        Self::of_total_nanos_of_day(i128::from(nanosecond))
+    }
+
+    pub fn of_total_nanos_of_day(total: i128) -> Self {
         // wrap around 24h like java.time
         const DAY_NANOS: i128 = 86_400_i128 * 1_000_000_000_i128;
         let mut n = total % DAY_NANOS;
-        if n < 0 { n += DAY_NANOS; }
+        if n < 0 {
+            n += DAY_NANOS;
+        }
         let hour = (n / 3_600_000_000_000) as u8; // 3600*1e9
         n %= 3_600_000_000_000;
         let minute = (n / 60_000_000_000) as u8;
@@ -48,58 +64,257 @@ impl LocalTime {
         LocalTime(time::Time::from_hms_nano(hour, minute, second, nano).unwrap())
     }
 
-    pub fn plus_hours(self, hours: i64) -> Self {
-        let delta = (hours as i128) * 3_600_000_000_000_i128;
-        Self::from_total_nanos_of_day(self.total_nanos_of_day() + delta)
+    pub fn parse(s: &str) -> Self {
+        use time::format_description::well_known::Iso8601;
+        Self(time::Time::parse(s, &Iso8601::DEFAULT).expect("invalid time string"))
     }
-    pub fn minus_hours(self, hours: i64) -> Self { self.plus_hours(-hours) }
+
+    /// Determines whether the current instance is before another instance.
+    ///
+    /// ### Arguments
+    /// - `other`: A reference to the instance to compare against.
+    ///
+    /// ### Returns
+    /// - `true` if the current instance occurs before the `other` instance.
+    /// - `false` otherwise.
+    ///
+    /// ### Example
+    /// ```rust
+    /// let time1 = LocalTime::now();
+    /// let time2 = time1.plus_hours(1);
+    ///
+    /// assert!(time1.is_before(time2));
+    /// assert!(!time2.is_before(time1));
+    /// ```
+    pub fn is_before(self, other: Self) -> bool {
+        self < other
+    }
+
+    /// Determines whether the current instance is after another instance.
+    ///
+    /// ### Arguments
+    /// - `other`: A reference to the instance to compare against.
+    ///
+    /// ### Returns
+    /// - `true` if the current instance occurs after the `other` instance.
+    /// - `false` otherwise.
+    ///
+    /// ### Example
+    /// ```rust
+    /// let time1 = LocalTime::now();
+    /// let time2 = time1.plus_hours(1);
+    ///
+    /// assert!(!time1.is_after(time2));
+    /// assert!(time2.is_after(time1));
+    /// ```
+    pub fn is_after(self, other: Self) -> bool {
+        self > other
+    }
+
+    /// Determines whether the current instance is on or before another instance.
+    ///
+    /// ### Arguments
+    /// - `other`: A reference to the instance to compare against.
+    ///
+    /// ### Returns
+    /// - `true` if the current instance occurs on or before the `other` instance.
+    /// - `false` otherwise.
+    ///
+    /// ### Example
+    /// ```rust
+    /// let time1 = LocalTime::now();
+    /// let time2 = time1.plus_hours(1);
+    /// let time3 = time1.minus_hours(1);
+    ///
+    /// assert!(time1.is_on_or_before(time1));
+    /// assert!(time1.is_on_or_before(time2));
+    /// assert!(!time1.is_on_or_before(time3));
+    /// ```
+    pub fn is_on_or_before(self, other: Self) -> bool {
+        self <= other
+    }
+
+    /// Determines whether the current other is on or after another instance.
+    ///
+    /// ### Arguments
+    /// - `other`: A reference to the instance to compare against.
+    ///
+    /// ### Returns
+    /// - `true` if the current instance occurs on or after the `other` instance.
+    /// - `false` otherwise.
+    ///
+    /// ### Example
+    /// ```rust
+    /// let time1 = LocalTime::now();
+    /// let time2 = time1.minus_hours(1);
+    /// let time3 = time1.plus_hours(1);
+    ///
+    /// assert!(time1.is_on_or_after(time1));
+    /// assert!(time1.is_on_or_after(time2));
+    /// assert!(!time1.is_on_or_after(time3));
+    /// ```
+    pub fn is_on_or_after(self, other: Self) -> bool {
+        self >= other
+    }
+
+    /// Returns the hour component of the time.
+    ///
+    /// ### Returns
+    /// An `i32` representing the hour of the time.
+    ///
+    /// ### Example
+    /// ```rust
+    /// let hour = LocalTime::now().hour();
+    /// println!("Hour value: {}", hour);
+    /// ```
+    pub fn hour(self) -> i32 {
+        self.0.hour() as i32
+    }
+
+    /// Returns the minute component of the time.
+    ///
+    /// ### Returns
+    /// An `i32` representing the minute of the time.
+    ///
+    /// ### Example
+    /// ```rust
+    /// let minute = LocalTime::now().minute();
+    /// println!("Minute value: {}", minute);
+    /// ```
+    pub fn minute(self) -> i32 {
+        self.0.minute() as i32
+    }
+
+    /// Returns the second component of the time.
+    ///
+    /// ### Returns
+    /// An `i32` representing the second of the time.
+    ///
+    /// ### Example
+    /// ```rust
+    /// let second = LocalTime::now().second();
+    /// println!("Second value: {}", second);
+    /// ```
+    pub fn second(self) -> i32 {
+        self.0.second() as i32
+    }
+
+    /// Returns the millisecond component of the time.
+    ///
+    /// # Returns
+    /// An `i32` representing the millisecond portion of the time, ranging from 0 to 999.
+    ///
+    /// # Example
+    /// ```rust
+    /// let time = LocalTime::now()
+    /// let milliseconds = time.millisecond();
+    /// println!("Milliseconds: {}", milliseconds);
+    /// ```
+    pub fn millisecond(self) -> i32 {
+        self.0.millisecond() as i32
+    }
+
+    /// Returns the nanosecond component of the time.
+    ///
+    /// ### Returns
+    /// An `i32` representing the nanosecond portion of the time.
+    ///
+    /// ### Example
+    /// ```rust
+    /// let nanoseconds = LocalTime::now().nanosecond();
+    /// println!("Nanoseconds value: {}", nanoseconds);
+    /// ```
+    pub fn nanosecond(self) -> i32 {
+        self.0.nanosecond() as i32
+    }
+
+    pub fn plus_hours(self, hours: i64) -> Self {
+        Self(self.0.add(Duration::of_hours(hours).inner()))
+    }
 
     pub fn plus_minutes(self, minutes: i64) -> Self {
-        let delta = (minutes as i128) * 60_000_000_000_i128;
-        Self::from_total_nanos_of_day(self.total_nanos_of_day() + delta)
+        Self(self.0.add(Duration::of_minutes(minutes).inner()))
     }
-    pub fn minus_minutes(self, minutes: i64) -> Self { self.plus_minutes(-minutes) }
 
     pub fn plus_seconds(self, seconds: i64) -> Self {
-        let delta = (seconds as i128) * 1_000_000_000_i128;
-        Self::from_total_nanos_of_day(self.total_nanos_of_day() + delta)
+        Self(self.0.add(Duration::of_seconds(seconds).inner()))
     }
-    pub fn minus_seconds(self, seconds: i64) -> Self { self.plus_seconds(-seconds) }
 
-    pub fn plus_nanos(self, nanos: i64) -> Self {
-        let delta = nanos as i128;
-        Self::from_total_nanos_of_day(self.total_nanos_of_day() + delta)
+    pub fn plus_milliseconds(self, milliseconds: i64) -> Self {
+        Self(self.0.add(Duration::of_milliseconds(milliseconds).inner()))
     }
-    pub fn minus_nanos(self, nanos: i64) -> Self { self.plus_nanos(-nanos) }
 
-    // with_* setters (panic on invalid, like constructors)
+    pub fn plus_nanoseconds(self, nanoseconds: i64) -> Self {
+        Self(self.0.add(Duration::of_nanoseconds(nanoseconds).inner()))
+    }
+
+    pub fn minus_hours(self, hours: i64) -> Self {
+        Self(self.0.sub(Duration::of_hours(hours).inner()))
+    }
+
+    pub fn minus_minutes(self, minutes: i64) -> Self {
+        Self(self.0.sub(Duration::of_minutes(minutes).inner()))
+    }
+
+    pub fn minus_seconds(self, seconds: i64) -> Self {
+        Self(self.0.sub(Duration::of_seconds(seconds).inner()))
+    }
+
+    pub fn minus_milliseconds(self, milliseconds: i64) -> Self {
+        Self(self.0.sub(Duration::of_milliseconds(milliseconds).inner()))
+    }
+
+    pub fn minus_nanoseconds(self, nanoseconds: i64) -> Self {
+        Self(self.0.sub(Duration::of_nanoseconds(nanoseconds).inner()))
+    }
+
     pub fn with_hour(self, hour: u8) -> Self {
-        let t = time::Time::from_hms_nano(hour, self.0.minute(), self.0.second(), self.0.nanosecond())
-            .expect("invalid hour");
-        LocalTime(t)
+        let time = self.0.replace_hour(hour).expect("invalid hour");
+        Self(time::Time::from(time))
     }
+
     pub fn with_minute(self, minute: u8) -> Self {
-        let t = time::Time::from_hms_nano(self.0.hour(), minute, self.0.second(), self.0.nanosecond())
-            .expect("invalid minute");
-        LocalTime(t)
+        let time = self.0.replace_minute(minute).expect("invalid minute");
+        Self(time::Time::from(time))
     }
     pub fn with_second(self, second: u8) -> Self {
-        let t = time::Time::from_hms_nano(self.0.hour(), self.0.minute(), second, self.0.nanosecond())
-            .expect("invalid second");
-        LocalTime(t)
-    }
-    pub fn with_nano(self, nano: u32) -> Self {
-        let t = time::Time::from_hms_nano(self.0.hour(), self.0.minute(), self.0.second(), nano)
-            .expect("invalid nano");
-        LocalTime(t)
+        let time = self.0.replace_second(second).expect("invalid second");
+        Self(time::Time::from(time))
     }
 
-    pub fn at_date(self, date: crate::LocalDate) -> crate::LocalDateTime {
-        crate::LocalDateTime::of_date_time(date, self)
+    pub fn with_millisecond(self, millisecond: u16) -> Self {
+        let time = self
+            .0
+            .replace_millisecond(millisecond)
+            .expect("invalid millisecond");
+        Self(time::Time::from(time))
     }
 
-    pub fn is_before(&self, other: LocalTime) -> bool { self.0 < other.0 }
-    pub fn is_after(&self, other: LocalTime) -> bool { self.0 > other.0 }
-    pub fn is_on_or_before(&self, other: LocalTime) -> bool { self.0 <= other.0 }
-    pub fn is_on_or_after(&self, other: LocalTime) -> bool { self.0 >= other.0 }
+    pub fn with_nanosecond(self, nanosecond: u32) -> Self {
+        let time = self
+            .0
+            .replace_nanosecond(nanosecond)
+            .expect("invalid nanosecond");
+        Self(time::Time::from(time))
+    }
+
+    pub fn at_date(self, date: LocalDate) -> LocalDateTime {
+        LocalDateTime::of_date_time(date, self)
+    }
+
+    pub(crate) fn from(time: time::Time) -> Self {
+        LocalTime(time)
+    }
+
+    pub(crate) fn inner(self) -> time::Time {
+        self.0
+    }
+}
+
+impl Sub for LocalTime {
+    type Output = Duration;
+    fn sub(self, rhs: Self) -> Self::Output {
+        let duration: time::Duration = self.0 - rhs.0;
+        Duration::from(duration)
+    }
 }

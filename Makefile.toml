@@ -5,7 +5,7 @@ script = ["cargo tarpaulin --workspace --all-features --tests --out Html"]
 script = [
     '''
     export CARGO_INCREMENTAL=0
-    export RUSTFLAGS="-Cinstrument-coverage"
+    export RUSTFLAGS="-Cinstrument-coverage -Copt-level=0 -Clink-dead-code"
     export LLVM_PROFILE_FILE="target/coverage/profraw/project-%p-%m.profraw"
     rm -rf target/coverage/profraw
     cargo test --all --workspace
