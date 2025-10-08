@@ -1,5 +1,6 @@
 use crate::{Clock, Duration, Instant, LocalDate, LocalDateTime, ZoneId};
 use core::ops::Sub;
+use std::fmt;
 use std::ops::Add;
 use time::UtcOffset;
 
@@ -316,5 +317,11 @@ impl Sub for LocalTime {
     fn sub(self, rhs: Self) -> Self::Output {
         let duration: time::Duration = self.0 - rhs.0;
         Duration::from(duration)
+    }
+}
+
+impl fmt::Display for LocalTime {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }

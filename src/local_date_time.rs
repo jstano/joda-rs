@@ -1,4 +1,5 @@
 use crate::{Clock, DayOfWeek, Duration, Instant, LocalDate, LocalTime, Month, OffsetDateTime, TemporalInstant, Year, ZoneId, ZoneOffset, ZonedDateTime};
+use std::fmt;
 use time::UtcOffset;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -18,10 +19,14 @@ impl LocalDateTime {
         Instant::now().at_zone(zone).to_local_date_time()
     }
 
-    pub fn of(year: i32, month: i32, day: i32, hour: i32, minute: i32, second: i32) -> Self {
+    pub fn new(year: i32, month: i32, day: i32, hour: i32, minute: i32, second: i32) -> Self {
         let date = LocalDate::of(year, month, day);
         let time = LocalTime::of(hour, minute, second);
         Self::of_date_time(date, time)
+    }
+
+    pub fn of(year: i32, month: i32, day: i32, hour: i32, minute: i32, second: i32) -> Self {
+        Self::new(year, month, day, hour, minute, second)
     }
 
     pub fn of_date_time(date: LocalDate, time: LocalTime) -> Self {
@@ -114,6 +119,14 @@ impl LocalDateTime {
     /// ```
     pub fn is_on_or_after(self, other: Self) -> bool {
         self >= other
+    }
+
+    pub fn to_instant(self, zone: ZoneId) -> Instant {
+        Instant::of_epoch_second(self.epoch_seconds()).at_zone(zone).to_instant()
+    }
+
+    pub fn to_instant_utc(self) -> Instant {
+        Instant::of_epoch_second(self.epoch_seconds()).at_zone(ZoneId::UTC).to_instant()
     }
 
     pub fn at_zone(self, zone: ZoneId) -> ZonedDateTime {
@@ -619,5 +632,11 @@ impl TemporalInstant for LocalDateTime {
 
     fn epoch_nanoseconds(self) -> i128 {
         Self::epoch_nanoseconds(self)
+    }
+}
+
+impl fmt::Display for LocalDateTime {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }

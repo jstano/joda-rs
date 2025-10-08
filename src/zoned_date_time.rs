@@ -1,4 +1,5 @@
 use crate::{Clock, DayOfWeek, Duration, Instant, LocalDate, LocalDateTime, LocalTime, Month, TemporalInstant, Year, ZoneId};
+use std::fmt;
 use time::UtcOffset;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -601,5 +602,11 @@ impl TemporalInstant for ZonedDateTime {
 
     fn epoch_nanoseconds(self) -> i128 {
         Self::epoch_nanoseconds(self)
+    }
+}
+
+impl fmt::Display for ZonedDateTime {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }

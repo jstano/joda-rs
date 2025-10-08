@@ -40,7 +40,7 @@ impl Clock {
     /// Creates a fixed clock instance in a given `zone`.
     ///
     /// ```rust
-    /// let instant = Instant::now();
+    /// let instant = LocalDateTime::new(2025, 10, 6, 8, 30, 45).to_instant_utc();
     /// let zone = ZoneId::UTC;
     /// let fixed_clock = Clock::fixed(instant, zone);
     /// ```
@@ -51,9 +51,8 @@ impl Clock {
     /// Creates a fixed clock instance in the UTC time zone.
     ///
     /// ```rust
-    /// let instant = Instant::now();
-    /// let zone = ZoneId::UTC;
-    /// let fixed_clock = Clock::fixed(instant, zone);
+    /// let instant = LocalDateTime::new(2025, 10, 6, 8, 30, 45).to_instant_utc();
+    /// let fixed_clock = Clock::fixed_utc(instant);
     /// ```
     pub fn fixed_utc(instant: Instant) -> Self {
         Clock::Fixed(FixedClock {

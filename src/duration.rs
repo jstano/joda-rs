@@ -1,5 +1,6 @@
 use crate::temporal::TemporalInstant;
 use bigdecimal::BigDecimal;
+use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Duration(time::Duration);
@@ -207,5 +208,11 @@ impl Duration {
     fn round_to_decimals(value: f64, decimals: u32) -> f64 {
         let factor = 10f64.powi(decimals as i32);
         (value * factor).round() / factor
+    }
+}
+
+impl fmt::Display for Duration {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }

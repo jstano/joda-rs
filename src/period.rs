@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Period {
     years: i32,
@@ -36,4 +38,10 @@ impl Period {
     pub const fn with_years(self, years: i32) -> Self { Self { years, ..self } }
     pub const fn with_months(self, months: i32) -> Self { Self { months, ..self } }
     pub const fn with_days(self, days: i32) -> Self { Self { days, ..self } }
+}
+
+impl fmt::Display for Period {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}:{}:{}", self.years, self.months, self.days)
+    }
 }

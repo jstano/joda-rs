@@ -1,4 +1,5 @@
 use crate::{Clock, DayOfWeek, Duration, Instant, LocalDate, LocalDateTime, LocalTime, Month, TemporalInstant, Year, ZoneOffset};
+use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct OffsetDateTime(time::OffsetDateTime);
@@ -738,5 +739,11 @@ impl TemporalInstant for OffsetDateTime {
 
     fn epoch_nanoseconds(self) -> i128 {
         Self::epoch_nanoseconds(self)
+    }
+}
+
+impl fmt::Display for OffsetDateTime {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }

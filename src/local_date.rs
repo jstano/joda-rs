@@ -1,4 +1,5 @@
 use crate::{Clock, DayOfWeek, Duration, Instant, LocalDateTime, LocalTime, Month, Year, ZoneId};
+use std::fmt;
 use time::UtcOffset;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -987,5 +988,11 @@ impl core::ops::Sub for LocalDate {
     fn sub(self, rhs: Self) -> Self::Output {
         let duration: time::Duration = self.0 - rhs.0;
         Duration::from(duration)
+    }
+}
+
+impl fmt::Display for LocalDate {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }

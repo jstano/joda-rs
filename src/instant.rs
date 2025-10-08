@@ -1,4 +1,5 @@
 use crate::{Clock, OffsetDateTime, TemporalInstant, ZoneId, ZoneOffset, ZonedDateTime};
+use std::fmt;
 use std::ops::{Add, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -7,17 +8,6 @@ pub struct Instant(time::OffsetDateTime);
 impl Instant {
     /// Returns the current instant as an `Instant`.
     ///
-    /// This function creates a new instance of `Instant` representing the current
-    /// system time, retrieved using `SystemTime::now()`.
-    ///
-    /// # Returns
-    /// An `Instant` initialized with the current time.
-    ///
-    /// # Note
-    /// The behavior and accuracy of the time retrieval may depend on the underlying
-    /// operating system and hardware.
-    ///
-    /// # Examples
     /// ```rust
     /// let current_instant = Instant::now();
     /// println!("{:?}", current_instant);
@@ -32,23 +22,10 @@ impl Instant {
 
     /// Constructs an `Instant` from the given number of seconds since the Unix epoch.
     ///
-    /// # Parameters
-    /// - `epoch_second`: A 64-bit integer representing the number of seconds elapsed since
-    ///   January 1, 1970 (Unix epoch). If the value is negative, it implicitly represents
-    ///   a time before the Unix epoch.
+    /// - This function will panic if the computation of the resulting duration results in an overflow)
     ///
-    /// # Returns
-    /// - Returns a new `Instant` instance representing the point in time specified by the
-    ///   `epoch_second`.
-    ///
-    /// # Panics
-    /// - This function will panic if the computation of the resulting duration exceeds the valid range
-    ///   for `std::time::Duration` (e.g., if adding `UNIX_EPOCH` and `duration` results in an
-    ///   overflow).
-    ///
-    /// # Example
-    /// ```
-    /// let instant = Instant::from_epoch_second(1625077800);
+    /// ```rust
+    /// let instant = Instant::of_epoch_second(1625077800);
     /// ```
     pub fn of_epoch_second(epoch_second: i64) -> Self {
         let duration = time::Duration::new(epoch_second, 0);
@@ -58,31 +35,20 @@ impl Instant {
     /// Creates a new `Instant` object from the specified number of epoch seconds
     /// and an additional nanosecond adjustment.
     ///
+    /// * `epoch_second` - The number of seconds since the Unix epoch (January 1, 1970 00:00:00 UTC).
+    /// * `nano_adjustment` - An additional adjustment in nanoseconds, which can be positive
+    ///   or negative.
+    ///
     /// This method computes the total number of nanoseconds since the epoch
     /// (`UNIX_EPOCH`) by combining `epoch_second` and `nano_adjustment`. It ensures
     /// that any overflow in the addition is gracefully handled, panicking if an
     /// overflow occurs. The result is then converted into seconds and nanoseconds
     /// to construct the `Instant`.
     ///
-    /// # Parameters
-    ///
-    /// * `epoch_second` - The number of seconds since the Unix epoch (January 1, 1970 00:00:00 UTC).
-    /// * `nano_adjustment` - An additional adjustment in nanoseconds, which can be positive
-    ///   or negative.
-    ///
-    /// # Panics
-    ///
     /// This function will panic if the computation of total nanoseconds overflows
-    /// or underflows the range of valid `i64` values.
+    /// or underflow's the range of valid `i64` values.
     ///
-    /// # Returns
-    ///
-    /// Returns an instance of `Self` (`Instant`), representing the specified point
-    /// in time relative to the epoch.
-    ///
-    /// # Examples
-    ///
-    /// ```
+    /// ```rust
     /// let instant = Instant::from_epoch_second_nano(1_600_000_000, 500_000_000); // November 13, 2020
     /// ```
     pub fn of_epoch_second_nano(epoch_second: i64, nano_adjustment: i32) -> Self {
@@ -92,27 +58,10 @@ impl Instant {
 
     /// Creates a new `Instant` instance from the provided epoch milliseconds.
     ///
-    /// # Parameters
-    /// - `epoch_milli`: An `i64` value representing the number of milliseconds since the Unix epoch
-    ///   (January 1, 1970, 00:00:00 UTC).
-    ///
-    /// # Returns
-    /// Returns an `Instant` instance that represents the equivalent point in time based on the input.
-    ///
-    /// # Details
-    /// - The method computes the seconds and remaining milliseconds from the given `epoch_milli`.
-    /// - It combines these values to construct a `Duration` and then adds it to the `UNIX_EPOCH`.
-    ///
-    /// # Example
     /// ```rust
-    /// use joda_rs::Instant;
-    ///
     /// let epoch_milli = 1_687_307_200_000; // Example epoch milliseconds.
     /// let instant = Instant::from_epoch_milli(epoch_milli);
     /// ```
-    ///
-    /// Note: This implementation assumes that the input `epoch_milli` is non-negative and within the
-    /// representable range of the Unix timestamp.
     pub fn of_epoch_millisecond(epoch_millisecond: i64) -> Self {
         let secs = epoch_millisecond.div_euclid(1000);
         let millis = epoch_millisecond.rem_euclid(1000);
@@ -124,15 +73,8 @@ impl Instant {
 
     /// Returns the number of seconds from the Unix Epoch.
     ///
-    /// Epoch time is the number of seconds that have elapsed since
-    /// January 1, 1970 00:00:00 UTC (the Unix epoch).
-    ///
     /// Leap seconds are not taken into account.
     ///
-    /// ### Returns
-    /// An `i64` representing the number of seconds elapsed since the Unix Epoch.
-    ///
-    /// ### Example
     /// ```rust
     /// let epoch_seconds = OffsetDateTime.now_utc().to_epoch_seconds();
     /// println!("Epoch seconds: {}", epoch_seconds);
@@ -143,15 +85,8 @@ impl Instant {
 
     /// Returns the number of milliseconds elapsed since the Unix Epoch.
     ///
-    /// Epoch time is the number of milliseconds that have elapsed since
-    /// January 1, 1970 00:00:00 UTC (the Unix epoch).
-    ///
     /// Leap seconds are not taken into account.
     ///
-    /// ### Returns
-    /// An `i128` representing the epoch time in milliseconds.
-    ///
-    /// ### Example
     /// ```rust
     /// let timestamp = OffsetDateTime.now_utc();
     /// let milliseconds = timestamp.epoch_milliseconds();
@@ -164,15 +99,6 @@ impl Instant {
 
     /// Returns the number of nanoseconds elapsed since the Unix Epoch.
     ///
-    /// Epoch time is the number of nanoseconds that have elapsed since
-    /// January 1, 1970 00:00:00 UTC (the Unix epoch).
-    ///
-    /// Leap seconds are not taken into account.
-    ///
-    /// ### Returns
-    /// An `i128` representing the epoch time in nanoseconds.
-    ///
-    /// ### Examples
     /// ```rust
     /// let nanoseconds = OffsetDateTime.now_utc().epoch_nanoseconds();
     /// println!("Epoch time in nanoseconds: {}", nanoseconds);
@@ -227,14 +153,10 @@ impl Instant {
 
     /// Determines whether the current instance is before another instance.
     ///
-    /// ### Arguments
-    /// - `other`: A reference to the instance to compare against.
-    ///
-    /// ### Returns
+    /// Returns
     /// - `true` if the current instance occurs before the `other` instance.
     /// - `false` otherwise.
     ///
-    /// ### Example
     /// ```rust
     /// let date1 = LocalDate::now();
     /// let date2 = date1.plus_hours(1);
@@ -248,14 +170,10 @@ impl Instant {
 
     /// Determines whether the current instance is after another instance.
     ///
-    /// ### Arguments
-    /// - `other`: A reference to the instance to compare against.
-    ///
-    /// ### Returns
+    /// Returns
     /// - `true` if the current instance occurs after the `other` instance.
     /// - `false` otherwise.
     ///
-    /// ### Example
     /// ```rust
     /// let date1 = LocalDate::now();
     /// let date2 = date1.plus_hours(1);
@@ -269,14 +187,10 @@ impl Instant {
 
     /// Determines whether the current instance is on or before another instance.
     ///
-    /// ### Arguments
-    /// - `other`: A reference to the instance to compare against.
-    ///
-    /// ### Returns
+    /// Returns
     /// - `true` if the current instance occurs on or before the `other` instance.
     /// - `false` otherwise.
     ///
-    /// ### Example
     /// ```rust
     /// let date1 = LocalDate::now();
     /// let date2 = date1.plus_hours(1);
@@ -292,14 +206,10 @@ impl Instant {
 
     /// Determines whether the current other is on or after another instance.
     ///
-    /// ### Arguments
-    /// - `other`: A reference to the instance to compare against.
-    ///
-    /// ### Returns
+    /// Returns
     /// - `true` if the current instance occurs on or after the `other` instance.
     /// - `false` otherwise.
     ///
-    /// ### Example
     /// ```rust
     /// let date1 = LocalDate::now();
     /// let date2 = date1.minus_hours(1);
@@ -329,5 +239,11 @@ impl TemporalInstant for Instant {
 
     fn epoch_nanoseconds(self) -> i128 {
         Self::epoch_nanoseconds(self)
+    }
+}
+
+impl fmt::Display for Instant {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
