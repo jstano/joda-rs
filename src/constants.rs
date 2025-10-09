@@ -1,0 +1,45 @@
+//! Common date and time constants used across the library.
+//!
+//! These constants are provided to avoid scattering magic numbers
+//! and to make conversions easier to read and maintain.
+
+// Base unit relationships
+pub const NANOSECONDS_PER_MICROSECOND: i64 = 1_000;
+pub const NANOSECONDS_PER_MILLISECOND: i64 = 1_000_000;
+pub const NANOSECONDS_PER_SECOND: i64 = 1_000_000_000;
+
+pub const MICROSECONDS_PER_MILLISECOND: i64 = 1_000;
+pub const MICROSECONDS_PER_SECOND: i64 = 1_000_000;
+
+pub const MILLISECONDS_PER_SECOND: i64 = 1_000;
+
+// Time per larger units
+pub const SECONDS_PER_MINUTE: i64 = 60;
+pub const MINUTES_PER_HOUR: i64 = 60;
+pub const HOURS_PER_DAY: i64 = 24;
+
+pub const SECONDS_PER_HOUR: i64 = SECONDS_PER_MINUTE * MINUTES_PER_HOUR; // 3_600
+pub const SECONDS_PER_DAY: i64 = SECONDS_PER_HOUR * HOURS_PER_DAY; // 86_400
+
+pub const MILLISECONDS_PER_MINUTE: i64 = MILLISECONDS_PER_SECOND * SECONDS_PER_MINUTE; // 60_000
+pub const MILLISECONDS_PER_HOUR: i64 = MILLISECONDS_PER_MINUTE * MINUTES_PER_HOUR; // 3_600_000
+pub const MILLISECONDS_PER_DAY: i64 = MILLISECONDS_PER_HOUR * HOURS_PER_DAY; // 86_400_000
+
+pub const MICROSECONDS_PER_MINUTE: i64 = MICROSECONDS_PER_SECOND * SECONDS_PER_MINUTE; // 60_000_000
+pub const MICROSECONDS_PER_HOUR: i64 = MICROSECONDS_PER_MINUTE * MINUTES_PER_HOUR; // 3_600_000_000
+pub const MICROSECONDS_PER_DAY: i64 = MICROSECONDS_PER_HOUR * HOURS_PER_DAY; // 86_400_000_000
+
+pub const NANOSECONDS_PER_MINUTE: i64 = NANOSECONDS_PER_SECOND * SECONDS_PER_MINUTE; // 60_000_000_000
+pub const NANOSECONDS_PER_HOUR: i64 = NANOSECONDS_PER_MINUTE * MINUTES_PER_HOUR; // 3_600_000_000_000
+pub const NANOSECONDS_PER_DAY: i64 = NANOSECONDS_PER_HOUR * HOURS_PER_DAY; // 86_400_000_000_000
+
+// Calendar relationships
+pub const DAYS_PER_WEEK: i64 = 7;
+pub const MONTHS_PER_YEAR: i64 = 12;
+
+pub const DAYS_PER_COMMON_YEAR: i64 = 365;
+pub const DAYS_PER_LEAP_YEAR: i64 = 366;
+
+// Approximations used in some computations (mirroring ChronoUnit::duration choices)
+pub const APPROX_DAYS_PER_MONTH: i64 = 30;
+pub const APPROX_DAYS_PER_YEAR: i64 = 365;

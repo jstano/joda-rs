@@ -15,7 +15,10 @@ pub mod year_month;
 pub mod month_day;
 pub mod clock;
 pub mod temporal;
+pub mod chrono_unit;
+pub mod constants;
 
+pub use chrono_unit::ChronoUnit;
 pub use clock::{Clock, FixedClock, SystemClock};
 pub use day_of_week::DayOfWeek;
 pub use duration::Duration;
