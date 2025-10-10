@@ -1,5 +1,5 @@
 use crate::temporal::TemporalInstant;
-use bigdecimal::BigDecimal;
+use rust_decimal::Decimal;
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -69,8 +69,8 @@ impl Duration {
         Self::round_to_decimals(self.0.whole_nanoseconds() as f64 / 3_600_000_000_000.0, 4)
     }
 
-    pub fn fractional_hours_decimal(self) -> BigDecimal {
-        (BigDecimal::from(self.0.whole_nanoseconds()) / BigDecimal::from(3_600_000_000_000i128)).with_scale(4)
+    pub fn fractional_hours_decimal(self) -> Decimal {
+        (Decimal::from(self.0.whole_nanoseconds()) / Decimal::from(3_600_000_000_000i128)).round_dp(4)
     }
 
     /// Returns duration as fractional seconds, rounded to 4 decimals.
@@ -78,8 +78,8 @@ impl Duration {
         Self::round_to_decimals(self.0.whole_nanoseconds() as f64 / 1_000_000_000.0, 4)
     }
 
-    pub fn fractional_seconds_decimal(self) -> BigDecimal {
-        (BigDecimal::from(self.0.whole_nanoseconds()) / BigDecimal::from(1_000_000_000)).with_scale(4)
+    pub fn fractional_seconds_decimal(self) -> Decimal {
+        (Decimal::from(self.0.whole_nanoseconds()) / Decimal::from(1_000_000_000)).round_dp(4)
     }
 
     pub fn is_negative(self) -> bool {
