@@ -7,7 +7,7 @@ description = "A java time / joda like wrapper around the time crate"
 license = "Apache-2.0"
 repository = "https://github.com/jstano/joda-rs"
 readme = "README.md"
-keywords = ["joda", "java.time", "java time"]
+keywords = ["joda", "javatime", "time", "chrono"]
 
 [dependencies]
 rust_decimal = "^1.38.0"
