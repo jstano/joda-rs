@@ -36,7 +36,12 @@
 /// let today = DayOfWeek::Wednesday;
 /// println!("Day number: {}", today.value()); // Outputs: Day number: 3
 /// ```
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum DayOfWeek {
     Monday = 1,
     Tuesday = 2,

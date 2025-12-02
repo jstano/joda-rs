@@ -2,7 +2,11 @@ use crate::temporal::TemporalInstant;
 use rust_decimal::Decimal;
 use std::fmt;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Duration(time::Duration);
 
 impl Duration {

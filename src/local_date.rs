@@ -2,7 +2,11 @@ use crate::{Clock, DayOfWeek, Duration, Instant, LocalDateTime, LocalTime, Month
 use std::fmt;
 use time::UtcOffset;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct LocalDate(time::Date);
 
 impl LocalDate {

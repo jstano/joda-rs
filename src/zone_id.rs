@@ -3,6 +3,9 @@ use time::OffsetDateTime;
 use time_tz::timezones::get_by_name;
 use time_tz::{timezones, OffsetDateTimeExt, TimeZone};
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ZoneId(&'static str);
 
@@ -143,5 +146,26 @@ impl FromStr for ZoneId {
         } else {
             Err("Unknown time zone")
         }
+    }
+}
+
+#[cfg(feature = "serde")]
+impl Serialize for ZoneId {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self.0)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> Deserialize<'de> for ZoneId {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        ZoneId::from_str(&s).map_err(serde::de::Error::custom)
     }
 }

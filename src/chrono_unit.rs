@@ -1,12 +1,16 @@
 use crate::{Duration, Instant, LocalDate, LocalDateTime, LocalTime, TemporalInstant};
 use std::fmt;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// A minimal equivalent of java.time.temporal.ChronoUnit.
 ///
 /// This enum provides a set of commonly used time units and
 /// helper methods to inspect whether a unit is date- or time-based
 /// and to obtain an approximate Duration for the unit.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Ord, PartialOrd)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum ChronoUnit {
     Nanos,
     Millis,

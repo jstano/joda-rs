@@ -1,5 +1,8 @@
 use crate::{Clock, LocalDate, Month, YearMonth, ZoneId};
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// A wrapper struct representing a year as a 32-bit signed integer.
 ///
 /// This struct provides a lightweight, type-safe abstraction for representing
@@ -32,6 +35,7 @@ use crate::{Clock, LocalDate, Month, YearMonth, ZoneId};
 /// assert_eq!(year_2023.value(), 2023);
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Year(pub i32);
 
 impl Year {

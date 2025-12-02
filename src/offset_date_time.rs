@@ -1,7 +1,11 @@
 use crate::{Clock, DayOfWeek, Duration, Instant, LocalDate, LocalDateTime, LocalTime, Month, TemporalInstant, Year, ZoneOffset};
 use std::fmt;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct OffsetDateTime(time::OffsetDateTime);
 
 impl OffsetDateTime {

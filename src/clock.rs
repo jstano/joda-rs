@@ -1,12 +1,17 @@
 use crate::{Instant, LocalDateTime, ZoneId, ZoneOffset};
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct FixedClock {
     instant: Instant,
     zone: ZoneId,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct SystemClock {
     zone: ZoneId,
 }
@@ -31,6 +36,7 @@ pub struct SystemClock {
 /// }
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum Clock {
     Fixed(FixedClock),
     System(SystemClock),

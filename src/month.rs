@@ -1,3 +1,6 @@
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// Represents the months of the year as an enum with each variant corresponding to a specific month.
 ///
 /// # Variants
@@ -38,6 +41,7 @@
 /// ```
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum Month {
     January = 1,
     February = 2,

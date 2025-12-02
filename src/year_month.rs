@@ -1,6 +1,10 @@
 use crate::{LocalDate, Month, Year};
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct YearMonth {
     year: i32,
     month: Month,
