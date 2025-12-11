@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
 pub struct ZonedDateTime(
-    #[cfg_attr(feature = "serde", serde(with = "rfc3339"))]
+    #[cfg_attr(feature = "serde", serde(with = "time::serde::rfc3339"))]
     time::OffsetDateTime
 );
 
