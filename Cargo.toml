@@ -1,6 +1,6 @@
 [package]
 name = "joda_rs"
-version = "0.1.11"
+version = "0.1.12"
 edition = "2024"
 authors = ["Jeff Stano <jeff@stano.com>"]
 description = "A java time / joda like wrapper around the time crate"
