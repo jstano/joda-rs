@@ -1,6 +1,6 @@
 [package]
 name = "joda_rs"
-version = "0.1.12"
+version = "0.1.14"
 edition = "2024"
 authors = ["Jeff Stano <jeff@stano.com>"]
 description = "A java time / joda like wrapper around the time crate"
@@ -15,7 +15,7 @@ serde = ["dep:serde", "time/serde"]
 
 [dependencies]
 rust_decimal = "1.38.0"
-time = { version = "0.3.43", features = ["parsing", "local-offset"] }
+time = { version = "0.3.43", features = ["parsing", "local-offset", "formatting", "macros"] }
 time-tz = {  version = "2.0.0", features = ["db", "system"] }
 
 [dependencies.serde]

@@ -17,7 +17,7 @@ pub mod clock;
 pub mod temporal;
 pub mod chrono_unit;
 pub mod constants;
-mod serde_time;
+pub mod serde_time;
 
 pub use chrono_unit::ChronoUnit;
 pub use clock::{Clock, FixedClock, SystemClock};

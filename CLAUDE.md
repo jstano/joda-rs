@@ -83,6 +83,7 @@ All primary types are re-exported at the crate root (`lib.rs`) for ergonomic imp
 - `src/chrono_unit.rs`: Time units for arithmetic (Days, Weeks, Months, etc.)
 - `src/temporal.rs`: Trait definitions
 - `src/constants.rs`: Standard constants for date/time operations
+- `src/serde_time.rs`: Custom serde serialization for `LocalTime` (used when `serde` feature is enabled)
 - `src/day_of_week.rs`, `src/month.rs`, `src/year.rs`, `src/year_month.rs`, `src/month_day.rs`: Supporting calendar types
 
 Tests are in `tests/` with one file per module (e.g., `local_date_tests.rs`, `zoned_date_time_tests.rs`).
@@ -98,12 +99,26 @@ Parsing uses ISO 8601 format by default. The `parse()` methods expect well-forme
 ### Feature Flag: `serde`
 The optional `serde` feature enables serialization support. When adding serde support to types, use conditional compilation with `#[cfg(feature = "serde")]`.
 
+**Custom Serde Serialization:**
+- `LocalTime` uses a custom serde module (`serde_time.rs`) for serialization to format time as `HH:MM:SS.f` (with optional subseconds)
+- Other types like `LocalDate` use `time::serde::iso8601` for ISO 8601 serialization via the `#[serde(with = "time::serde::iso8601")]` attribute
+- When adding serde to new wrapper types, use `#[serde(transparent)]` to serialize the inner `time` type directly
+
+**Testing with serde:**
+```bash
+# Run tests with serde feature enabled
+cargo test --features serde
+
+# Build with serde
+cargo build --features serde
+```
+
 ### Error Handling
 Many methods use `.expect()` for invalid inputs, following the philosophy that constructors like `of(year, month, day)` should panic on invalid data (similar to java.time). This is intentional for ergonomic constructor APIs.
 
 ## Publishing
 
-Version is currently `0.1.3` (edition 2024). Update `Cargo.toml` version before publishing:
+Version is currently `0.1.14` (edition 2024). Update `Cargo.toml` version before publishing:
 ```bash
 cargo package --allow-dirty  # preview the package
 cargo publish
