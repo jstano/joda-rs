@@ -11,7 +11,10 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
 pub struct LocalTime(
-    #[cfg_attr(feature = "serde", serde(with = "time::serde::rfc3339"))]
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "format_description::well_known::Rfc3339::time")
+    )]
     time::Time
 );
 
