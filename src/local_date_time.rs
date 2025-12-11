@@ -8,7 +8,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
-pub struct LocalDateTime(time::PrimitiveDateTime);
+pub struct LocalDateTime(
+    #[cfg_attr(feature = "serde", serde(with = "rfc3339"))]
+    time::PrimitiveDateTime
+);
 
 impl LocalDateTime {
     pub fn now() -> Self {

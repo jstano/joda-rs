@@ -7,7 +7,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
-pub struct OffsetDateTime(time::OffsetDateTime);
+pub struct OffsetDateTime(
+    #[cfg_attr(feature = "serde", serde(with = "rfc3339"))]
+    time::OffsetDateTime
+);
 
 impl OffsetDateTime {
     /// Returns the current UTC datetime wrapped in a custom `OffsetDateTime` type.

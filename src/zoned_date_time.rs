@@ -8,7 +8,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
-pub struct ZonedDateTime(time::OffsetDateTime);
+pub struct ZonedDateTime(
+    #[cfg_attr(feature = "serde", serde(with = "rfc3339"))]
+    time::OffsetDateTime
+);
 
 impl ZonedDateTime {
     pub fn now_utc() -> Self {
