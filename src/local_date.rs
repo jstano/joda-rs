@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
 pub struct LocalDate(
-    #[cfg_attr(feature = "serde", serde(with = "time::serde::date"))]
     time::Date
 );
 
