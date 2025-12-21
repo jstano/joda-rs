@@ -1,6 +1,6 @@
 [package]
 name = "joda_rs"
-version = "0.1.14"
+version = "0.1.15"
 edition = "2024"
 authors = ["Jeff Stano <jeff@stano.com>"]
 description = "A java time / joda like wrapper around the time crate"
@@ -22,6 +22,9 @@ time-tz = {  version = "2.0.0", features = ["db", "system"] }
 version = "1.0"
 optional = true
 features = ["derive"]
+
+[dev-dependencies]
+serde_json = "1.0"
 
 [lib]
 doctest = false

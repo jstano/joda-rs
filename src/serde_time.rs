@@ -5,13 +5,16 @@ use time::{Date, PrimitiveDateTime, Time};
 pub mod serde_time {
     use super::*;
     use serde::{self, Deserialize, Deserializer, Serializer};
-    use time::format_description::well_known::Iso8601;
+    use time::format_description::FormatItem;
+    use time::macros::format_description;
+
+    const TIME_FORMAT: &[FormatItem] = format_description!("[hour]:[minute]:[second][optional [.[subsecond]]]");
 
     pub fn serialize<S>(time: &Time, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        let s = time.format(&Iso8601::DEFAULT).map_err(serde::ser::Error::custom)?;
+        let s = time.format(&TIME_FORMAT).map_err(serde::ser::Error::custom)?;
         serializer.serialize_str(&s)
     }
 
@@ -20,7 +23,7 @@ pub mod serde_time {
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        Time::parse(&s, &Iso8601::DEFAULT).map_err(serde::de::Error::custom)
+        Time::parse(&s, &TIME_FORMAT).map_err(serde::de::Error::custom)
     }
 }
 
@@ -28,13 +31,16 @@ pub mod serde_time {
 pub mod serde_date {
     use super::*;
     use serde::{self, Deserialize, Deserializer, Serializer};
-    use time::format_description::well_known::Iso8601;
+    use time::format_description::FormatItem;
+    use time::macros::format_description;
+
+    const DATE_FORMAT: &[FormatItem] = format_description!("[year]-[month]-[day]");
 
     pub fn serialize<S>(date: &Date, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        let s = date.format(&Iso8601::DEFAULT).map_err(serde::ser::Error::custom)?;
+        let s = date.format(&DATE_FORMAT).map_err(serde::ser::Error::custom)?;
         serializer.serialize_str(&s)
     }
 
@@ -43,7 +49,7 @@ pub mod serde_date {
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        Date::parse(&s, &Iso8601::DEFAULT).map_err(serde::de::Error::custom)
+        Date::parse(&s, &DATE_FORMAT).map_err(serde::de::Error::custom)
     }
 }
 
@@ -51,13 +57,16 @@ pub mod serde_date {
 pub mod serde_datetime {
     use super::*;
     use serde::{self, Deserialize, Deserializer, Serializer};
-    use time::format_description::well_known::Iso8601;
+    use time::format_description::FormatItem;
+    use time::macros::format_description;
+
+    const DATETIME_FORMAT: &[FormatItem] = format_description!("[year]-[month]-[day]T[hour]:[minute]:[second]");
 
     pub fn serialize<S>(datetime: &PrimitiveDateTime, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        let s = datetime.format(&Iso8601::DEFAULT).map_err(serde::ser::Error::custom)?;
+        let s = datetime.format(&DATETIME_FORMAT).map_err(serde::ser::Error::custom)?;
         serializer.serialize_str(&s)
     }
 
@@ -66,6 +75,6 @@ pub mod serde_datetime {
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        PrimitiveDateTime::parse(&s, &Iso8601::DEFAULT).map_err(serde::de::Error::custom)
+        PrimitiveDateTime::parse(&s, &DATETIME_FORMAT).map_err(serde::de::Error::custom)
     }
 }
